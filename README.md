@@ -181,16 +181,3 @@ If a processed video plays in VLC but not in browser, install `ffmpeg` and repro
 - `cuda`: use GPU if available, otherwise fallback to CPU
 
 GPU improves speed; detection quality mostly depends on model and thresholds.
-
-## Limitations (Honest Fresher Notes)
-
-- Very tiny distant faces can still be missed
-- Higher recall can blur some non-face regions occasionally
-- CPU video processing is slower than GPU
-
-## Future Improvements
-
-- Multi-scale or tiled detection for tiny faces
-- Presets: `fast`, `balanced`, `high_recall`
-- Save detection logs for audit/debug
-- Batch processing for multiple files
