@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import shutil
+import subprocess
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Tuple
 
 import cv2
 import numpy as np
@@ -43,6 +45,45 @@ def build_video_writer(output_path: str, fps: float, width: int, height: int) ->
             return writer
         writer.release()
     raise ValueError("Could not initialize video writer with supported codecs")
+
+
+def transcode_for_browser(raw_path: str, final_path: str) -> Optional[str]:
+    ffmpeg_path = shutil.which("ffmpeg")
+    if not ffmpeg_path:
+        return "ffmpeg not found. Output may play in VLC but not in browser."
+
+    cmd = [
+        ffmpeg_path,
+        "-y",
+        "-i",
+        raw_path,
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "23",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
+        "-an",
+        final_path,
+    ]
+
+    try:
+        completed = subprocess.run(cmd, check=False, capture_output=True, text=True)
+    except Exception:
+        return "ffmpeg execution failed. Output may not be browser-compatible."
+
+    if completed.returncode != 0:
+        return "ffmpeg transcoding failed. Output may not be browser-compatible."
+
+    try:
+        Path(raw_path).unlink(missing_ok=True)
+    except Exception:
+        pass
+    return None
 
 
 def process_image(
@@ -92,7 +133,7 @@ def process_video(
     conf_thresh: float = 0.2,
     enhance: bool = False,
     progress_cb: Optional[Callable[[int, str], None]] = None,
-) -> str:
+) -> Tuple[str, Optional[str]]:
     if progress_cb:
         progress_cb(3, "Opening video")
 
@@ -107,8 +148,10 @@ def process_video(
     out_height = height - (height % 2)
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
+    final_path = Path(output_path)
+    raw_path = final_path.with_name(f"{final_path.stem}_raw{final_path.suffix}")
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    writer = build_video_writer(output_path, fps, out_width, out_height)
+    writer = build_video_writer(str(raw_path), fps, out_width, out_height)
 
     temporal = TemporalFilter(iou_thresh=0.3, min_hits_mid=2, max_misses=3, grace=2)
     high_conf = max(conf_thresh, 0.4)
@@ -145,7 +188,12 @@ def process_video(
     cap.release()
     writer.release()
 
+    warning = transcode_for_browser(str(raw_path), str(final_path))
+
+    if warning and raw_path.exists() and not final_path.exists():
+        raw_path.replace(final_path)
+
     if progress_cb:
         progress_cb(100, "Completed")
 
-    return output_path
+    return output_path, warning

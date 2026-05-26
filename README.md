@@ -1,4 +1,4 @@
-# Face Blur Pipeline (Fresher Assignment)
+# Face Blur Pipeline
 
 This project is my implementation for the assignment:
 
@@ -23,7 +23,7 @@ For surveillance input, face quality can be poor. A simple frontal-face detector
 - side-profile faces
 - partial/occluded faces
 - multiple faces in one frame
-- low-quality images compared to basic Haar-only approaches
+- low-quality images
 
 ## Tools / Models / Frameworks Used
 
@@ -32,6 +32,7 @@ For surveillance input, face quality can be poor. A simple frontal-face detector
 - OpenCV (read/write image/video, enhancement, blur, encoding)
 - FaceXLib RetinaFace (PyTorch backend)
 - HTML/CSS/JS (simple frontend)
+- ffmpeg (optional but recommended for browser-compatible MP4 playback)
 
 ## End-to-End Pipeline
 
@@ -113,7 +114,7 @@ For surveillance input, face quality can be poor. A simple frontal-face detector
 - `static/app.js` - upload, polling, progress bar, output rendering
 - `static/style.css` - styling
 
-## Setup
+## Setup (Linux/macOS)
 
 ```bash
 python3 -m venv .venv
@@ -121,10 +122,42 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+Optional (recommended for browser video preview):
+
+```bash
+sudo apt install ffmpeg
+```
+
+## Setup (Windows)
+
+```powershell
+py -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Install ffmpeg (recommended for browser video preview):
+
+```powershell
+winget install Gyan.FFmpeg
+```
+
+If venv activation is blocked in PowerShell, run:
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+```
+
 ## Run
 
 ```bash
 python3 app.py
+```
+
+Windows:
+
+```powershell
+python app.py
 ```
 
 Open:
@@ -138,6 +171,8 @@ Open:
 3. Enable enhancement for dark/noisy footage
 4. Click `Process`
 5. Watch progress bar (video), then preview and download
+
+If a processed video plays in VLC but not in browser, install `ffmpeg` and reprocess the video.
 
 ## Device Behavior
 

@@ -75,7 +75,11 @@ form.addEventListener("submit", async (e) => {
 
     const finalData = await pollStatus(data.job_id);
 
-    statusEl.textContent = `Done. Device used: ${finalData.device_used || "cpu"}`;
+    let statusMsg = `Done. Device used: ${finalData.device_used || "cpu"}`;
+    if (finalData.playback_warning) {
+      statusMsg += ` | Note: ${finalData.playback_warning}`;
+    }
+    statusEl.textContent = statusMsg;
     downloadLink.href = finalData.output_url;
     downloadLink.setAttribute("download", finalData.download_name);
 
@@ -89,6 +93,9 @@ form.addEventListener("submit", async (e) => {
       video.src = finalData.output_url;
       video.controls = true;
       video.playsInline = true;
+      video.addEventListener("error", () => {
+        statusEl.textContent = "Browser could not preview this video codec. Please use download link (works in VLC).";
+      });
       preview.appendChild(video);
     }
 

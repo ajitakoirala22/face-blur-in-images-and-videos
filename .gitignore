@@ -1,35 +1,27 @@
-# Python
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtual environments
 .venv/
 venv/
 env/
 
-# Build / packaging
 build/
 dist/
 *.egg-info/
 
-# IDE / editor
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS files
 .DS_Store
 Thumbs.db
 
-# App runtime folders
 uploads/
 outputs/
 
-# Logs
 *.log
 
-# Environment / secrets
 .env
 .env.*

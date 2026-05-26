@@ -64,7 +64,7 @@ def _run_job(
             _set_job(job_id, progress=progress, message=message)
 
         if is_video(input_path):
-            process_video(
+            _, warning = process_video(
                 str(input_path),
                 str(output_path),
                 detector,
@@ -74,6 +74,7 @@ def _run_job(
             )
             media_type = "video"
         else:
+            warning = None
             process_image(
                 str(input_path),
                 str(output_path),
@@ -92,6 +93,7 @@ def _run_job(
             type=media_type,
             output_url=f"/media/{output_path.name}",
             download_name=output_path.name,
+            playback_warning=warning,
         )
     except Exception as exc:
         _set_job(job_id, status="failed", message=f"Processing failed: {exc}")
@@ -137,6 +139,7 @@ def process_file():
             "output_url": None,
             "download_name": None,
             "device_used": None,
+            "playback_warning": None,
         }
 
     worker = threading.Thread(
